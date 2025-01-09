@@ -1,18 +1,57 @@
 <script lang="ts">
-  import Popup from '$lib/popup.svelte'
-  import Button from '$lib/button.svelte';
-  let i = $state(false)
-  $effect(() => console.log(i))
-  let input = $state("")
+import Popup from '../lib/popup.svelte';
+
+let isCreate = false; // State to control popup visibility
+let lines: Array<string> = []; // Array to receive exported lines from the popup
+
+// Function to toggle the popup
+const toggleCreate = () => {
+  isCreate = !isCreate;
+};
+
+// Callback to update the lines array from the popup
+const updateLines = (newLines: Array<string>) => {
+  lines = newLines; // Update the parent component's lines array
+  console.log("Updated lines:", lines);
+};
 </script>
 
-<Button bind:isCreate={i} />
-{#if i}
-  <Popup bind:input={input} />
-{/if}
+<div class="page-container">
+  <button onclick={toggleCreate}>Toggle Popup</button>
+  {#if isCreate}
+    <Popup isCreate={toggleCreate} onUpdateLines={updateLines} />
+  {/if}
+  <div class="main-page">
+    <div class="main-header">Up next for you</div>
+    <div class="flex card-container">
+      <a href="subjects">subjects</a> 
+    </div>
+  </div>
+</div>
 
 <style>
-body {
-  height: 100vh;
+.page-container {
+  position: relative;
+  padding: 16px;
+}
+button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0056b3;
+}
+.main-header {
+  font-size: 36px;
+}
+.flex {
+  display: flex;
+}
+.card-container {
+  gap: 10px;
 }
 </style>

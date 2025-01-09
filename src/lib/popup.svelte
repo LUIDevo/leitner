@@ -1,85 +1,64 @@
 <script lang="ts">
-let { input = $bindable()} = $props();
-$effect(() => console.log(input))
+let { isCreate, onUpdateLines } = $props(); // Access props via $props()
 
-let answer = $state("")
-function changeAnswer(line: string) {
-    return (event: Event) => {
-      const target = event.currentTarget as HTMLInputElement; // Assert type
-      const inputValue = target.value; // Safely access value
-      console.log(`Line: ${line}, Input Value: ${inputValue}`);
-    };
-  }
+let text = $state("hello"); // State for the text area
+let lines: Array<string> = []; // Array to store formatted lines
+let isPrimary = $state(true); // State to toggle between modes
 
-let isPrimary = $state(true);
-let value = $state("joadsj")
+// Function to validate and process the text input
 const validate = () => {
-  formatContent(text)
-  console.log("validate function")
-  console.log("form data", text)
+  formatContent(text);
   isPrimary = false;
-}
-let lines: Array<string>
-lines = []
-let text = $state("hello")
-const isInLine = (testString: string, line: string): boolean => {
-  const regex = new RegExp(`^${testString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s.*`); 
-  return regex.test(line);
+
+  // Call the parent's callback function to export the lines array
+  if (typeof onUpdateLines === 'function') {
+    onUpdateLines(lines);
+  }
 };
 
+// Function to format content into lines
 const formatContent = (text: string): string => {
-  const updatedLines: Array<string> = text.split('\n').map((line) => {
-    if (isInLine(">?", line)) {
-      console.log("Matched line:", line);
-      // Replace matched line and push the formatted line
-      return line.replace(/^>\?\s(.*)/, '$1');
-    } else {
-      return ""; // Keep the line unchanged
-    }
-  });
-  lines = updatedLines; // Update the `lines` array
+  lines = text
+    .split('\n')
+    .map(line => (line.startsWith(">") ? line.replace(/^>\?\s(.*)/, '$1') : ""));
   return text;
 };
-$effect(() => console.log(text))
+
+// Handler for individual line input changes
+const changeAnswer = (line: string) => (event: Event) => {
+  const target = event.currentTarget as HTMLInputElement;
+  console.log(`Line: ${line}, Input Value: ${target.value}`);
+};
 </script>
 
 <div class="popup-container">
-  {#if isPrimary == true}
-  <div class="popup">
-    <p>Enter Topic</p>
-    <p>Enter Note Here</p>
-    <form onsubmit={validate}>
-      <textarea bind:value={text}></textarea>
-      <button type="submit">
-          Submit
-      </button>
-    </form>
-  </div>
+  {#if isPrimary}
+    <div class="popup">
+      <p>Enter Topic</p>
+      <p>Enter Note Here</p>
+      <form onsubmit={validate}>
+        <textarea bind:value={text}></textarea>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
   {:else}
-  <div class="popup">
-    <div class="flex col">
-      {#each lines as line, num }
+    <div class="popup">
+      <div class="flex col">
+        {#each lines as line, num}
           <div class="card">
             <div>{line}</div>
-            {#if line!=""}
-            <input class="HDAIJS" oninput={changeAnswer(line)}>              
+            {#if line !== ""}
+              <input oninput={changeAnswer(line)} />
             {/if}
           </div>
-      {/each}
+        {/each}
+        <div class="button" onclick={isCreate}>Close</div>
+      </div>
     </div>
-  </div>
   {/if}
-  
-  
 </div>
 
-
 <style>
-.card {
-  display: flex;
-  width: 100%;
-  gap: 16px;
-}
 .popup-container {
   position: absolute;
   height: 100vh;
@@ -91,9 +70,9 @@ $effect(() => console.log(text))
   justify-content: center;
   align-items: center;
 }
-.popup { 
+.popup {
   padding: 16px;
-  border-radius: 4;
+  border-radius: 4px;
   border: 1px solid lightgrey;
 }
 .flex {
@@ -101,5 +80,10 @@ $effect(() => console.log(text))
 }
 .col {
   flex-direction: column;
+}
+.card {
+  display: flex;
+  width: 100%;
+  gap: 16px;
 }
 </style>
