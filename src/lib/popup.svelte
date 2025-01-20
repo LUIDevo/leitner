@@ -7,9 +7,10 @@ let isPrimary = $state(true); // State to toggle between modes
 
 // Function to validate and process the text input
 const validate = () => {
-  formatContent(text);
-  isPrimary = false;
+  let formattedContent = formatContent(text);
+  console.log("formatted Content", formattedContent)
 
+  isPrimary = false;
   // Call the parent's callback function to export the lines array
   if (typeof onUpdateLines === 'function') {
     onUpdateLines(lines);
@@ -17,11 +18,12 @@ const validate = () => {
 };
 
 // Function to format content into lines
-const formatContent = (text: string): string => {
+const formatContent = (text: string): string[] => {
   lines = text
     .split('\n')
-    .map(line => (line.startsWith(">") ? line.replace(/^>\?\s(.*)/, '$1') : ""));
-  return text;
+    .map(line => (line.startsWith(">") ? line.replace(/^>\?\s(.*)/, '$1') : ""))
+    .filter(line => line.trim() !== "");
+  return lines;
 };
 
 // Handler for individual line input changes

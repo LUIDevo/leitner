@@ -1,11 +1,18 @@
 <script lang="ts">
 import Popup from '../lib/popup.svelte';
+ import { getContext } from 'svelte';
+    import { writable, type Writable } from 'svelte/store';
 
+    // Get the context
+  const listOfSubjects = getContext<Writable<string[]>>('listOfSubjects');
 let isCreate = false; // State to control popup visibility
 let lines: Array<string> = []; // Array to receive exported lines from the popup
 
+const user = getContext('listOfSubjects');
+console.log(user)
 // Function to toggle the popup
 const toggleCreate = () => {
+  console.log(user)
   isCreate = !isCreate;
 };
 
@@ -23,6 +30,11 @@ const updateLines = (newLines: Array<string>) => {
   {/if}
   <div class="main-page">
     <div class="main-header">Up next for you</div>
+    <ul>
+    {#each $listOfSubjects as subject}
+        <li>{subject}</li>
+    {/each}
+  </ul>
     <div class="flex card-container">
       <a href="subjects">subjects</a> 
     </div>
