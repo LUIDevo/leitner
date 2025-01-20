@@ -7,12 +7,12 @@
 
     onMount(async() => {
          try {
-            const response = await fetch('/returnSubjects');
+            const response = await fetch('http://localhost:4004/returnSubjects');
             const data = await response.json();
             if (Array.isArray(data)) {
-                // Update the listOfSubjects store with the fetched data
-                listOfSubjects.set(data); // You can use set to replace the store's value
-            }
+                const subjects = data.map((item) => item.subject);
+                listOfSubjects.set(subjects);
+            } 
         } catch (error) {
             console.error('Failed to fetch subjects:', error);
         }
@@ -28,19 +28,12 @@
             listOfSubjects.update((subjects) => {
                 return [...subjects, name]; // Add the new subject
             });
-            const response = await fetch('http://localhost:4004/createNewSubject/${name}', {
-                method: 'POST',
-                    body: JSON.stringify({ listOfSubjects }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-            });
+            const response = await fetch(`http://localhost:4004/createNewSubject/${name}`)           
             if (!response.ok) {
                     throw new Error('Failed to fetch folder data');
             }
             subjectName = ''; // Clear input field
             popup(); // Close popup
-            console.log("did this")
         }
     }; 
 </script>
@@ -61,12 +54,9 @@
     </div>
 </div>
 {/if}
-hi
-{$count}
-{$listOfSubjects}
 <!-- Display List of Subjects -->
 {#each $listOfSubjects as subject}
-   <div>{subject}</div> 
+   <div class="subject-container">{subject}</div> 
 {/each}
 
 <style>
@@ -88,5 +78,12 @@ hi
         border-radius: 8px;
         display: flex;
         flex-direction: column;
+    }
+    .subject-container {
+        padding: 20px 32px;
+        border: 1px solid black;
+        border-radius: 24px;
+        display: flex;
+        box-sizing: border-box;
     }
 </style>
